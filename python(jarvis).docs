@@ -1,0 +1,163 @@
+import pyttsx3
+
+import datetime
+
+import speech_recognition as sr
+
+import wikipedia
+
+import webbrowser as wb
+
+import pyautogui
+
+
+
+
+
+engine=pyttsx3.init()
+
+
+
+engine.setProperty("rate",155)
+
+voices=engine.getProperty("voices")
+
+engine.setProperty("voice",voices[1].id)
+
+engine.setProperty("volume",1.0)
+
+#id: HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_EN-US_DAVID_11.0
+
+#id: HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_EN-GB_HAZEL_11.0
+
+#id: HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_EN-US_ZIRA_11.0
+
+
+
+
+
+
+
+
+
+def speak(*audio):
+
+    engine.say(audio)
+
+    engine.runAndWait()
+
+def time():
+
+    speak("current time is!",datetime.datetime.now().strftime("%I"),"hours!",datetime.datetime.now().strftime("%H"),"minutes!",datetime.datetime.now().strftime("%S"),"seconds")
+
+def date():
+
+    speak("today date is! ",datetime.datetime.now().day,datetime.datetime.now().month,datetime.datetime.now().year)
+
+def wish():
+
+    currenthour=int(datetime.datetime.now().hour)
+
+    if currenthour>=6 and currenthour<12:
+
+        speak("good morning!")
+
+    elif currenthour>=12 and currenthour<18:
+
+        speak("goog afternoon!")
+
+    elif currenthour>=18 and currenthour<24:
+
+        speak("good evening! sir")
+
+    else:
+
+        speak("hello! sir")
+
+def Take_Command():
+
+    r=sr.Recognizer()
+
+    with sr.Microphone() as source:
+
+        print("listening..")
+
+        speak("say something")
+
+        r.pause_threshold=1
+
+        audio=r.listen(source)
+
+    try:
+
+        print("RECOGNIZNING...")
+
+        query =r.recognize_google(audio,language="en-in")
+
+        print("you said:"+query)
+
+    except Exception as e:
+
+        speak("error occure! please say it again")
+
+        print(e)
+
+        return "none"
+
+    return query
+
+def ss():
+
+    pyautogui.screenshot().save("C:/Users/Rahul kumar/Desktop/python/ss.png")
+
+if __name__=="__main__":
+
+    wish()
+
+    while True:
+
+        query=Take_Command().lower()
+
+        remember = open("speak.txt", "w")
+
+        remember.write(query)
+
+
+
+        if "time" in query:
+
+            time()
+
+        elif "date" in query:
+
+            date()
+
+        elif "bye bye" or "offline" or "off your self" in query:
+
+            speak("good bye sir!")
+
+            remember.close()
+
+            quit()
+
+        elif "search" in query:
+
+            if "google" in query:
+
+                speak("searching...")
+
+                query=query.replace("search","")
+
+                query=query.replace("google","")
+
+                query=query.replace("on"," ",1)
+
+                speak(query)
+
+                query=query.replace(" ",'',query.count(" "))
+
+                wb.get("C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s").open(query+".com")
+
+            else:
+
+                speak("searching..", wikipedia.summary(query.replace("search", ""), sentences=2))
